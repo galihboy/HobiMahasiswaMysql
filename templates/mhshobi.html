@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data mhshobi</title>
+</head>
+<body>
+    {% include 'navigasi.html' %}
+    <h1>Data mhshobi</h1>
+    <table border="1">
+        <tr>
+            <th>NIM</th>
+            <th>Nama Mahasiswa</th>
+            <th>Hobi</th>
+            <th>Aksi</th>
+        </tr>
+        {% for data in mhshobi_data %}
+            <tr>
+                <td>{{ data['nim'] }}</td>
+                <td>{{ data['nama'] }}</td>
+                <td>{{ data['daftar_hobi'] }}</td>
+                <td>
+                    <a href="{{ url_for('edit_mhshobi', nim=data['nim']) }}">Edit</a> |
+                    <a href="{{ url_for('hapus_mhshobi', nim=data['nim']) }}" onclick="return confirm('Apakah Anda yakin ingin menghapus data mhshobi dengan NIM {{ data['nim'] }} - {{ data['nama'] }}?')">Hapus</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Tambah mhshobi</h2>
+    <a href="{{ url_for('tambah_mhshobi') }}">Tambah mhshobi</a>
+{% include 'footer.html' %}
+</body>
+</html>

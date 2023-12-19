@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Mahasiswa</title>
+</head>
+<body>
+    {% include 'navigasi.html' %}
+    <h1>Edit Mahasiswa</h1>
+    <form method="post">
+        <!-- Isi form sesuai dengan field di tabel mahasiswa -->
+        Nama: <input type="text" name="nama" value="{{ mahasiswa['nama'] }}" required><br>
+        Tempat Lahir: <input type="text" name="tempat_lahir" value="{{ mahasiswa['tempat_lahir'] }}"><br>
+        Tanggal Lahir: <input type="date" name="tanggal_lahir" value="{{ mahasiswa['tanggal_lahir'] }}"><br>
+        Kota: <input type="text" name="kota" value="{{ mahasiswa['kota'] }}"><br>
+        Tanggal Masuk: <input type="date" name="tanggal_masuk" value="{{ mahasiswa['tanggal_masuk'] }}"><br>
+        Tinggi Badan: <input type="text" name="tinggi_badan" value="{{ mahasiswa['tinggi_badan'] }}"><br>
+        <input type="submit" value="Simpan">
+    </form>
+{% include 'footer.html' %}
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Mahasiswa</title>
+</head>
+<body>
+    {% include 'navigasi.html' %}
+    <h1>Data Mahasiswa</h1>
+    <table border="1">
+        <tr>
+            <th>NIM</th>
+            <th>Nama Mahasiswa</th>
+            <th>Tempat Lahir</th>
+            <th>Tanggal Lahir</th>
+            <th>Kota</th>
+            <th>Tanggal Masuk</th>
+            <th>Tinggi Badan</th>
+            <th>Aksi</th>
+        </tr>
+        {% for data in mahasiswa_data %}
+            <tr>
+                <td>{{ data['nim'] }}</td>
+                <td>{{ data['nama'] }}</td>
+                <td>{{ data['tempat_lahir'] }}</td>
+                <td>{{ data['tanggal_lahir'] }}</td>
+                <td>{{ data['kota'] }}</td>
+                <td>{{ data['tanggal_masuk'] }}</td>
+                <td>{{ data['tinggi_badan'] }}</td>
+                <td>
+                    <a href="{{ url_for('edit_mahasiswa', nim=data['nim']) }}">Edit</a> |
+                    <a href="{{ url_for('hapus_mahasiswa', nim=data['nim']) }}" onclick="return confirm('Apakah Anda yakin ingin menghapus data mahasiswa dengan NIM: {{ data['nim'] }} a.n. {{ data['nama'] }}?')">Hapus</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Tambah Mahasiswa</h2>
+    <a href="{{ url_for('tambah_mahasiswa') }}">Tambah Mahasiswa</a>
+{% include 'footer.html' %}
+</body>
+</html>
