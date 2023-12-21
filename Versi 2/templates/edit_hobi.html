@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Hobi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navigasi.html' %}
+    <h1>Edit Hobi</h1>
+    <form method="post">
+        <!-- Isi form sesuai dengan field di tabel hobi -->
+        Nama Hobi: <input type="text" name="namahobi" value="{{ hobi['namahobi'] }}" required><br>
+        <input type="submit" value="Simpan">
+    </form>
+{% include 'footer.html' %}
+</body>
+</html>

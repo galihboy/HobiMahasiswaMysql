@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Hobi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navigasi.html' %}
+    <h1>Data Hobi</h1>
+    <!-- Mahasiswa Search Form -->
+    <form method="GET" action="{{ url_for('data_hobi') }}" style="margin-bottom: 20px;">
+        <label for="search">Cari Hobi:</label>
+        <input type="text" name="search" id="search" placeholder="Nama hobi">
+        <input type="submit" value="Cari">
+    </form>
+
+    <table border="1">
+        <tr>
+            <th>Kode Hobi</th>
+            <th>Nama Hobi</th>
+            <th>Aksi</th>
+        </tr>
+        {% for data in hobi_data %}
+            <tr>
+                <td>{{ data['kodehobi'] }}</td>
+                <td>{{ data['namahobi'] }}</td>
+                <td>
+                    <a href="{{ url_for('edit_hobi', kodehobi=data['kodehobi']) }}">Edit</a> |
+                    <a href="{{ url_for('hapus_hobi', kodehobi=data['kodehobi']) }}" onclick="return confirm('Apakah Anda yakin ingin menghapus hobi: {{ data['kodehobi'] }}. {{ data['namahobi'] }}?')">Hapus</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Tambah Hobi</h2>
+    <a href="{{ url_for('tambah_hobi') }}">Tambah Hobi</a>
+{% include 'footer.html' %}
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah mhshobi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navigasi.html' %}
+    <h1>Tambah mhshobi</h1>
+    <form method="post">
+        <!-- Isi form sesuai dengan field di tabel mhshobi -->
+        <label for="nim">NIM:</label>
+        <select name="nim" id="nim" required>
+            {% for mahasiswa in mahasiswa_data %}
+                <option value="{{ mahasiswa['nim'] }}">{{ mahasiswa['nim'] }} - {{ mahasiswa['nama'] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label>Kode Hobi:</label><br>
+        {% for hobi in hobi_data %}
+            <label>
+                <input type="checkbox" name="kodehobi" value="{{ hobi['kodehobi'] }}">
+                {{ hobi['kodehobi'] }} - {{ hobi['namahobi'] }}
+            </label><br>
+        {% endfor %}
+        <br>
+
+        <input type="submit" value="Tambah">
+    </form>
+    {% include 'footer.html' %}
+</body>
+</html>
