@@ -32,30 +32,6 @@ def buat_koneksi():
         print(f"Error: {err}")
         return None
 
-# Fungsi untuk membuat koneksi ke database - contoh basis data online
-def buat_koneksi_online():
-    return mysql.connector.connect(
-        host=os.getenv('HOST'),
-        port=os.getenv('PORT'),
-        user=os.getenv('USER'),
-        password=os.getenv('PASSWORD'),
-        database=os.getenv('DATABASE')
-    )
-
-# Pengaturan untuk koneksi lokal
-def buat_koneksi_lokal():
-    return mysql.connector.connect(
-        host='localhost',
-        port='3306',
-        user='root',
-        password='',
-        database='proyek_hobimahasiswa'
-    )
-
-# Konfigurasi koneksi MySQL
-#db = buat_koneksi()
-
-
 # Fungsi untuk mendapatkan data mahasiswa beserta hobi
 def get_mahasiswa_hobi(search_query=''):
     db = buat_koneksi()
