@@ -1,11 +1,49 @@
 # db.py
 # Galih Hermawan (https://galih.eu)
 
+import os
+from dotenv import load_dotenv
 import mysql.connector
 
+# Coba muat .env, jika gagal, abaikan
+try:
+    load_dotenv()  # Cari file .env di direktori saat ini
+except FileNotFoundError:
+    pass
 
-# Fungsi untuk membuat koneksi ke database
+# Ambil nilai variabel lingkungan, gunakan nilai default (lokal) jika tidak ada
+HOST = os.getenv('HOST', 'localhost')  # Ganti dengan default hosting Anda
+PORT = int(os.getenv('PORT', 3306))  # Ganti dengan port hosting Anda
+USER = os.getenv('USER', 'root')     # Ganti dengan user hosting Anda
+PASSWORD = os.getenv('PASSWORD', '') # Ganti dengan password hosting Anda
+DATABASE = os.getenv('DATABASE', 'proyek_hobimahasiswa')  # Ganti dengan nama database Anda
+
+# Fungsi untuk membuat koneksi ke database - hybrid (bisa lokal atau online)
 def buat_koneksi():
+    try:
+        return mysql.connector.connect(
+            host=HOST,
+            port=PORT,
+            user=USER,
+            password=PASSWORD,
+            database=DATABASE
+        )
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+# Fungsi untuk membuat koneksi ke database - contoh basis data online
+def buat_koneksi_online():
+    return mysql.connector.connect(
+        host=os.getenv('HOST'),
+        port=os.getenv('PORT'),
+        user=os.getenv('USER'),
+        password=os.getenv('PASSWORD'),
+        database=os.getenv('DATABASE')
+    )
+
+# Pengaturan untuk koneksi lokal
+def buat_koneksi_lokal():
     return mysql.connector.connect(
         host='localhost',
         port='3306',
@@ -13,7 +51,6 @@ def buat_koneksi():
         password='',
         database='proyek_hobimahasiswa'
     )
-
 
 # Konfigurasi koneksi MySQL
 #db = buat_koneksi()
