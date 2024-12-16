@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Data Hobi Mahasiswa</h2>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMhshobiModal">
+            <i class="fas fa-plus"></i> Tambah Hobi Mahasiswa
+        </button>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>NIM</th>
+                            <th>Nama Mahasiswa</th>
+                            <th>Daftar Hobi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in data_mhshobi %}
+                        <tr>
+                            <td>{{ data.nim }}</td>
+                            <td>{{ data.nama }}</td>
+                            <td>{{ data.daftar_hobi }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" 
+                                        data-bs-target="#editMhshobiModal{{ data.nim }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" 
+                                        data-bs-target="#deleteMhshobiModal{{ data.nim }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editMhshobiModal{{ data.nim }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Hobi Mahasiswa</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{{ url_for('edit_mhshobi', nim=data.nim) }}" method="POST">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Mahasiswa</label>
+                                                <input type="text" class="form-control" value="{{ data.nim }} - {{ data.nama }}" disabled>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Pilih Hobi</label>
+                                                <div class="hobi-checkboxes">
+                                                    {% for hobi in hobi_data %}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" 
+                                                               name="hobi" value="{{ hobi.kodehobi }}"
+                                                               {% if hobi.kodehobi|string in data.hobi_ids %}checked{% endif %}>
+                                                        <label class="form-check-label">
+                                                            {{ hobi.namahobi }}
+                                                        </label>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-primary">Simpan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteMhshobiModal{{ data.nim }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Konfirmasi Hapus</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Apakah Anda yakin ingin menghapus semua hobi dari mahasiswa {{ data.nama }}?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                        <form action="{{ url_for('delete_mhshobi', nim=data.nim, kodehobi='all') }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-danger">Hapus</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informasi Tambahan -->
+    <div class="row mb-4">
+        <!-- List Hobi dan Peminatnya -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-heart"></i> Daftar Hobi dan Peminatnya
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama Hobi</th>
+                                    <th>Jumlah Peminat</th>
+                                    <th>Persentase</th>
+                                    <th>Daftar Peminat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hobi in hobi_dengan_peminat %}
+                                <tr>
+                                    <td>{{ hobi.namahobi }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ hobi.jumlah_peminat }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ hobi.persentase }}%;" 
+                                                 aria-valuenow="{{ hobi.persentase }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ hobi.persentase }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if hobi.daftar_peminat %}
+                                            {{ hobi.daftar_peminat }}
+                                        {% else %}
+                                            <span class="text-muted">Belum ada peminat</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Mahasiswa Tanpa Hobi -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">Mahasiswa Tanpa Hobi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>NIM</th>
+                                    <th>Nama</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mhs in mahasiswa_tanpa_hobi %}
+                                <tr>
+                                    <td>{{ mhs.nim }}</td>
+                                    <td>{{ mhs.nama }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hobi Tanpa Peminat -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Hobi Tanpa Peminat</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Hobi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hobi in hobi_tanpa_peminat %}
+                                <tr>
+                                    <td>{{ hobi.kodehobi }}</td>
+                                    <td>{{ hobi.namahobi }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Mhshobi Modal -->
+<div class="modal fade" id="addMhshobiModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Hobi Mahasiswa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_mhshobi') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="nim" class="form-label">Mahasiswa</label>
+                        <select class="form-select" id="nim" name="nim" required>
+                            <option value="">Pilih Mahasiswa...</option>
+                            {% for mhs in mahasiswa_tanpa_hobi %}
+                            <option value="{{ mhs.nim }}">{{ mhs.nama }} ({{ mhs.nim }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="hobi" class="form-label">Hobi</label>
+                        <select class="form-select" id="hobi" name="hobi" required multiple>
+                            {% for h in hobi_data %}
+                            <option value="{{ h.kodehobi }}">{{ h.namahobi }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Tekan Ctrl (Windows) atau Command (Mac) untuk memilih lebih dari satu hobi</small>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Ringkasan -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Mahasiswa</h5>
+                    <h2 class="card-text">{{ ringkasan.total_mahasiswa }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Hobi</h5>
+                    <h2 class="card-text">{{ ringkasan.total_hobi }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Dengan Hobi</h5>
+                    <h2 class="card-text">{{ ringkasan.mahasiswa_dengan_hobi }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Tanpa Hobi</h5>
+                    <h2 class="card-text">{{ ringkasan.mahasiswa_tanpa_hobi }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafik dan Statistik -->
+    <div class="row mb-4">
+        <!-- Grafik Hobi -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Distribusi Hobi Mahasiswa</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="hobiChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabel Statistik Tinggi Badan -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Statistik Tinggi Badan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Kategori</th>
+                                    <th>Nilai</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Rata-rata</td>
+                                    <td>{{ statistik_tinggi.rata_rata }} cm</td>
+                                </tr>
+                                <tr>
+                                    <td>Tertinggi</td>
+                                    <td>{{ statistik_tinggi.tertinggi }} cm</td>
+                                </tr>
+                                <tr>
+                                    <td>Terendah</td>
+                                    <td>{{ statistik_tinggi.terendah }} cm</td>
+                                </tr>
+                                <tr>
+                                    <td>Median</td>
+                                    <td>{{ statistik_tinggi.median }} cm</td>
+                                </tr>
+                                <tr>
+                                    <td>Modus</td>
+                                    <td>{{ statistik_tinggi.modus }} cm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistik per Kota -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Statistik per Kota</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Kota</th>
+                                    <th>Jumlah Mahasiswa</th>
+                                    <th>Rata-rata Tinggi</th>
+                                    <th>Hobi Populer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in statistik_kota %}
+                                <tr>
+                                    <td>{{ stat.kota }}</td>
+                                    <td>{{ stat.jumlah_mahasiswa }}</td>
+                                    <td>{{ stat.rata_tinggi }} cm</td>
+                                    <td>{{ stat.hobi_populer or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hobi Tanpa Peminat -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Hobi Tanpa Peminat
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if hobi_tanpa_peminat %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Kode Hobi</th>
+                                    <th>Nama Hobi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hobi in hobi_tanpa_peminat %}
+                                <tr>
+                                    <td><code>{{ hobi.kodehobi }}</code></td>
+                                    <td>{{ hobi.namahobi }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success mb-0">
+                        <i class="fas fa-check-circle"></i> Semua hobi memiliki peminat.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Grafik Persentase Kota dan Tahun Masuk -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Persentase Mahasiswa Berdasarkan Kota Asal</h5>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px;">
+                    <canvas id="chartKota"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">Distribusi Mahasiswa Berdasarkan Tahun Masuk</h5>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px;">
+                    <canvas id="chartTahun"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Data untuk grafik hobi (bar chart)
+        const hobiData = {
+            labels: [{% for item in statistik_hobi %}'{{ item.namahobi }}',{% endfor %}],
+            datasets: [{
+                label: 'Jumlah Mahasiswa',
+                data: [{% for item in statistik_hobi %}{{ item.jumlah_mahasiswa }},{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        // Konfigurasi grafik hobi
+        const hobiConfig = {
+            type: 'bar',
+            data: hobiData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Jumlah Mahasiswa'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        };
+
+        // Membuat grafik hobi
+        new Chart(
+            document.getElementById('hobiChart'),
+            hobiConfig
+        );
+
+        // Fungsi untuk membuat pie chart
+        function createPieChart(elementId, data, title) {
+            const ctx = document.getElementById(elementId);
+            if (!ctx) {
+                console.error('Canvas element not found:', elementId);
+                return;
+            }
+
+            console.log('Creating pie chart with data:', data);
+
+            return new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: data.colors || ['#FF6384', '#36A2EB', '#FFCE56']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: title
+                        }
+                    }
+                }
+            });
+        }
+
+        // Data untuk statistik kota
+        const dataKota = {
+            labels: [
+                {% for kota in statistik_kota %}
+                    "{{ kota.kota }}"{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            values: [
+                {% for kota in statistik_kota %}
+                    {{ kota.jumlah_mahasiswa }}{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            colors: [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
+                '#FF9F40', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+            ]
+        };
+
+        // Data untuk statistik tahun masuk
+        const dataTahun = {
+            labels: [
+                {% for tahun in statistik_tahun %}
+                    "{{ tahun.tahun }}"{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            values: [
+                {% for tahun in statistik_tahun %}
+                    {{ tahun.jumlah_mahasiswa }}{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            colors: [
+                '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#36A2EB',
+                '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384'
+            ]
+        };
+
+        // Debug
+        console.log('Data Kota:', dataKota);
+        console.log('Data Tahun:', dataTahun);
+
+        // Membuat pie charts
+        createPieChart('chartKota', dataKota, 'Persentase Mahasiswa per Kota');
+        createPieChart('chartTahun', dataTahun, 'Distribusi per Tahun Masuk');
+    });
+</script>
+
+{% endblock %}

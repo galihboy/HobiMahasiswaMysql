@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-file-alt"></i> Laporan Data Mahasiswa</h2>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="filterForm" method="GET" action="{{ url_for('laporan') }}" class="mb-4" onsubmit="return submitForm(event)">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="filter-type" class="form-label">Filter Tanggal Masuk Berdasarkan:</label>
+                        <select class="form-select" id="filter-type" name="filter_type" onchange="filterTypeChange(this)">
+                            <option value="">Semua Data</option>
+                            <option value="date" {% if filter_type == 'date' %}selected{% endif %}>Tanggal Spesifik</option>
+                            <option value="month" {% if filter_type == 'month' %}selected{% endif %}>Bulan</option>
+                            <option value="year" {% if filter_type == 'year' %}selected{% endif %}>Tahun</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="date-filter" style="display: {% if filter_type == 'date' %}block{% else %}none{% endif %}">
+                        <label for="filter-value-date" class="form-label">Pilih Tanggal:</label>
+                        <input type="date" class="form-control filter-value" id="filter-value-date" data-type="date" 
+                               value="{{ filter_value if filter_type == 'date' else '' }}">
+                    </div>
+                    <div class="col-md-3" id="month-filter" style="display: {% if filter_type == 'month' %}block{% else %}none{% endif %}">
+                        <label for="filter-value-month" class="form-label">Pilih Bulan:</label>
+                        <select class="form-select filter-value" id="filter-value-month" data-type="month">
+                            <option value="">Pilih Bulan</option>
+                            <option value="1" {% if filter_type == 'month' and filter_value == '1' %}selected{% endif %}>Januari</option>
+                            <option value="2" {% if filter_type == 'month' and filter_value == '2' %}selected{% endif %}>Februari</option>
+                            <option value="3" {% if filter_type == 'month' and filter_value == '3' %}selected{% endif %}>Maret</option>
+                            <option value="4" {% if filter_type == 'month' and filter_value == '4' %}selected{% endif %}>April</option>
+                            <option value="5" {% if filter_type == 'month' and filter_value == '5' %}selected{% endif %}>Mei</option>
+                            <option value="6" {% if filter_type == 'month' and filter_value == '6' %}selected{% endif %}>Juni</option>
+                            <option value="7" {% if filter_type == 'month' and filter_value == '7' %}selected{% endif %}>Juli</option>
+                            <option value="8" {% if filter_type == 'month' and filter_value == '8' %}selected{% endif %}>Agustus</option>
+                            <option value="9" {% if filter_type == 'month' and filter_value == '9' %}selected{% endif %}>September</option>
+                            <option value="10" {% if filter_type == 'month' and filter_value == '10' %}selected{% endif %}>Oktober</option>
+                            <option value="11" {% if filter_type == 'month' and filter_value == '11' %}selected{% endif %}>November</option>
+                            <option value="12" {% if filter_type == 'month' and filter_value == '12' %}selected{% endif %}>Desember</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="year-filter" style="display: {% if filter_type == 'year' %}block{% else %}none{% endif %}">
+                        <label for="filter-value-year" class="form-label">Masukkan Tahun:</label>
+                        <input type="number" class="form-control filter-value" id="filter-value-year" data-type="year"
+                               value="{{ filter_value if filter_type == 'year' else '' }}" 
+                               placeholder="Contoh: 2024" min="2000" max="2100">
+                    </div>
+                    <div class="col-md-3 align-self-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Terapkan Filter
+                        </button>
+                        {% if filter_type %}
+                            <a href="{{ url_for('laporan') }}" class="btn btn-secondary">
+                                <i class="fas fa-undo"></i> Reset
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <input type="hidden" name="filter_value" id="filter_value" value="{{ filter_value }}">
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>NIM</th>
+                            <th>Nama</th>
+                            <th>Tempat Lahir</th>
+                            <th>Tanggal Lahir</th>
+                            <th>Kota</th>
+                            <th>Tanggal Masuk</th>
+                            <th>Tinggi Badan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mhs in mahasiswa_list %}
+                        <tr>
+                            <td>{{ mhs.nim }}</td>
+                            <td>{{ mhs.nama }}</td>
+                            <td>{{ mhs.tempat_lahir }}</td>
+                            <td>{{ mhs.tanggal_lahir.strftime('%d-%m-%Y') }}</td>
+                            <td>{{ mhs.kota }}</td>
+                            <td>{{ mhs.tanggal_masuk.strftime('%d-%m-%Y') }}</td>
+                            <td>{{ mhs.tinggi_badan }} cm</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-center">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print"></i> Pratinjau Cetak
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterTypeChange(selectElement) {
+    // Sembunyikan semua filter
+    document.getElementById('date-filter').style.display = 'none';
+    document.getElementById('month-filter').style.display = 'none';
+    document.getElementById('year-filter').style.display = 'none';
+    
+    // Tampilkan filter yang dipilih
+    const selectedValue = selectElement.value;
+    if (selectedValue) {
+        document.getElementById(selectedValue + '-filter').style.display = 'block';
+    }
+}
+
+function submitForm(event) {
+    event.preventDefault();
+    
+    const filterType = document.getElementById('filter-type').value;
+    let filterValue = '';
+    
+    if (filterType) {
+        const activeFilter = document.querySelector(`#filter-value-${filterType}`);
+        filterValue = activeFilter.value;
+    }
+    
+    document.getElementById('filter_value').value = filterValue;
+    event.target.submit();
+}
+</script>
+{% endblock %}

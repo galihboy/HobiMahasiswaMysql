@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Data Mahasiswa dan Hobi</h1>
+
+    <!-- Formulir Pencarian -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('index') }}" method="GET" class="row g-3 align-items-center">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="Cari berdasarkan nama mahasiswa atau hobi" 
+                               value="{{ request.args.get('search', '') }}"
+                               style="min-width: 300px;">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Cari</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabel Data -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>NIM</th>
+                    <th>Nama Mahasiswa</th>
+                    <th>Hobi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in mahasiswa_hobi_data %}
+                    <tr>
+                        <td>{{ data['nim'] }}</td>
+                        <td>{{ data['nama'] }}</td>
+                        <td>{{ data['daftar_hobi'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
