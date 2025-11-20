@@ -37,7 +37,7 @@ def get_mahasiswa_hobi(search_query=''):
             "LEFT JOIN hobi ON mhshobi.kodehobi = hobi.kodehobi "
     if search_query:
         query += f"WHERE mahasiswa.nama LIKE '%{search_query}%' OR hobi.namahobi LIKE '%{search_query}%' "
-    query += "GROUP BY mahasiswa.nim, mahasiswa.nama ORDER BY mahasiswa.nim"
+    query += "GROUP BY mahasiswa.nim, mahasiswa.nama ORDER BY CAST(mahasiswa.nim AS UNSIGNED)"
     cursor.execute(query)
     result = cursor.fetchall()
     cursor.close()
@@ -76,7 +76,7 @@ def get_mahasiswa_data(search_query='', filter_tanggal_masuk=None):
     if conditions:
         query += "WHERE " + " AND ".join(conditions)
     
-    query += " ORDER BY nim"
+    query += " ORDER BY CAST(nim AS UNSIGNED)"
     
     try:
         cursor.execute(query, values)
@@ -121,7 +121,7 @@ def get_mhshobi_data():
         LEFT JOIN mhshobi mh ON m.nim = mh.nim
         LEFT JOIN hobi h ON mh.kodehobi = h.kodehobi
         GROUP BY m.nim, m.nama
-        ORDER BY m.nim
+        ORDER BY CAST(m.nim AS UNSIGNED)
     """
     
     cursor.execute(query)
@@ -143,7 +143,8 @@ def get_mahasiswa_without_hobi():
     db = buat_koneksi()
     cursor = db.cursor(dictionary=True)
     query = "SELECT nim, nama FROM mahasiswa " \
-            "WHERE nim NOT IN (SELECT nim FROM mhshobi)"
+            "WHERE nim NOT IN (SELECT nim FROM mhshobi) " \
+            "ORDER BY CAST(nim AS UNSIGNED)"
     cursor.execute(query)
     result = cursor.fetchall()
     cursor.close()

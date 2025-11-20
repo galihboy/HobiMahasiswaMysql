@@ -100,6 +100,32 @@
                 justify-content: center;
             }
         }
+        /* Style untuk sortable table headers */
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px !important;
+        }
+        .sortable:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .sortable::after {
+            content: '\f0dc';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 8px;
+            opacity: 0.3;
+        }
+        .sortable.asc::after {
+            content: '\f0de';
+            opacity: 1;
+        }
+        .sortable.desc::after {
+            content: '\f0dd';
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -180,6 +206,70 @@
             }, 5000);
         });
     </script>
+
+    <!-- Script untuk sortable table -->
+    <script>
+        // Auto-initialize sortable tables on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cari semua tabel dengan class table
+            document.querySelectorAll('.table').forEach(table => {
+                // Tambahkan class sortable ke semua th yang bukan kolom aksi
+                const headers = table.querySelectorAll('thead th');
+                headers.forEach(th => {
+                    const text = th.textContent.trim().toLowerCase();
+                    if (text !== 'aksi' && text !== 'actions' && text !== '') {
+                        th.classList.add('sortable');
+                    }
+                });
+                
+                // Initialize sorting untuk tabel ini
+                const tbody = table.querySelector('tbody');
+                if (!tbody) return;
+                
+                const sortableHeaders = table.querySelectorAll('thead th.sortable');
+                sortableHeaders.forEach((header, index) => {
+                    header.addEventListener('click', () => {
+                        const rows = Array.from(tbody.querySelectorAll('tr'));
+                        const isAscending = header.classList.contains('asc');
+                        
+                        // Reset semua header di tabel ini
+                        sortableHeaders.forEach(h => h.classList.remove('asc', 'desc'));
+                        
+                        // Set sorting direction
+                        if (isAscending) {
+                            header.classList.add('desc');
+                        } else {
+                            header.classList.add('asc');
+                        }
+                        
+                        // Sort rows
+                        rows.sort((a, b) => {
+                            const aValue = a.cells[index].textContent.trim();
+                            const bValue = b.cells[index].textContent.trim();
+                            
+                            // Cek apakah nilai adalah angka
+                            const aNum = parseFloat(aValue.replace(/[^\d.-]/g, ''));
+                            const bNum = parseFloat(bValue.replace(/[^\d.-]/g, ''));
+                            
+                            let comparison = 0;
+                            if (!isNaN(aNum) && !isNaN(bNum)) {
+                                // Numeric comparison
+                                comparison = aNum - bNum;
+                            } else {
+                                // String comparison
+                                comparison = aValue.localeCompare(bValue, 'id', {numeric: true});
+                            }
+                            
+                            return isAscending ? -comparison : comparison;
+                        });
+                        
+                        // Reorder rows
+                        rows.forEach(row => tbody.appendChild(row));
+                    });
+                });
+            });
+        });
+    </script>
     
     {% block scripts %}{% endblock %}
 
@@ -202,7 +292,7 @@
                     </a>
                 </div>
                 <div>
-                    <p class="mb-0">&copy; 2024 Dibuat dengan <i class="fas fa-heart text-danger"></i> oleh <a href="https://galih.eu" target="_blank">Galih Hermawan</a></p>
+                    <p class="mb-0">&copy; 2024-2025 Dibuat dengan <i class="fas fa-heart text-danger"></i> oleh <a href="https://galih.eu" target="_blank">Galih Hermawan</a></p>
                 </div>
             </div>
         </div>

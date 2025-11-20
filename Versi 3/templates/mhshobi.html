@@ -28,7 +28,7 @@
                         <tr>
                             <td>{{ data.nim }}</td>
                             <td>{{ data.nama }}</td>
-                            <td>{{ data.daftar_hobi }}</td>
+                            <td>{{ data.daftar_hobi if data.daftar_hobi else '-' }}</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" 
                                         data-bs-target="#editMhshobiModal{{ data.nim }}">
@@ -136,14 +136,16 @@
                                         <span class="badge bg-primary">{{ hobi.jumlah_peminat }}</span>
                                     </td>
                                     <td>
-                                        <div class="progress" style="height: 20px;">
-                                            <div class="progress-bar" role="progressbar" 
-                                                 style="width: {{ hobi.persentase }}%;" 
-                                                 aria-valuenow="{{ hobi.persentase }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">
-                                                {{ hobi.persentase }}%
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height: 20px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ hobi.persentase }}%;" 
+                                                     aria-valuenow="{{ hobi.persentase }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                </div>
                                             </div>
+                                            <span class="text-nowrap fw-bold" style="min-width: 50px;">{{ hobi.persentase }}%</span>
                                         </div>
                                     </td>
                                     <td>

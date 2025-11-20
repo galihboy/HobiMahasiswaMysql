@@ -2,199 +2,141 @@
 
 {% block content %}
 <div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-chart-bar"></i> Dashboard Statistik</h2>
+    
     <!-- Ringkasan -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
                     <h5 class="card-title">Total Mahasiswa</h5>
                     <h2 class="card-text">{{ ringkasan.total_mahasiswa }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-heart fa-2x mb-2"></i>
                     <h5 class="card-title">Total Hobi</h5>
                     <h2 class="card-text">{{ ringkasan.total_hobi }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-check fa-2x mb-2"></i>
                     <h5 class="card-title">Dengan Hobi</h5>
                     <h2 class="card-text">{{ ringkasan.mahasiswa_dengan_hobi }}</h2>
+                    <small>{{ "%.1f"|format((ringkasan.mahasiswa_dengan_hobi / ringkasan.total_mahasiswa * 100) if ringkasan.total_mahasiswa > 0 else 0) }}%</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-times fa-2x mb-2"></i>
                     <h5 class="card-title">Tanpa Hobi</h5>
                     <h2 class="card-text">{{ ringkasan.mahasiswa_tanpa_hobi }}</h2>
+                    <small>{{ "%.1f"|format((ringkasan.mahasiswa_tanpa_hobi / ringkasan.total_mahasiswa * 100) if ringkasan.total_mahasiswa > 0 else 0) }}%</small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Grafik dan Statistik -->
+    <!-- Grafik Utama -->
     <div class="row mb-4">
         <!-- Grafik Hobi -->
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Distribusi Hobi Mahasiswa</h5>
+                    <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Top 10 Hobi Paling Populer</h5>
                 </div>
                 <div class="card-body">
-                    <div style="height: 300px;">
+                    <div style="height: 350px;">
                         <canvas id="hobiChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Tabel Statistik Tinggi Badan -->
-        <div class="col-md-6">
+        <!-- Info Ringkas -->
+        <div class="col-md-4">
             <div class="card h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Statistik Tinggi Badan</h5>
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-info-circle"></i> Info Ringkas</h5>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Kategori</th>
-                                    <th>Nilai</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Rata-rata</td>
-                                    <td>{{ statistik_tinggi.rata_rata }} cm</td>
-                                </tr>
-                                <tr>
-                                    <td>Tertinggi</td>
-                                    <td>{{ statistik_tinggi.tertinggi }} cm</td>
-                                </tr>
-                                <tr>
-                                    <td>Terendah</td>
-                                    <td>{{ statistik_tinggi.terendah }} cm</td>
-                                </tr>
-                                <tr>
-                                    <td>Median</td>
-                                    <td>{{ statistik_tinggi.median }} cm</td>
-                                </tr>
-                                <tr>
-                                    <td>Modus</td>
-                                    <td>{{ statistik_tinggi.modus }} cm</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">Rata-rata Usia</h6>
+                        <h3 class="mb-0">{{ ringkasan.rata_rata_usia }} tahun</h3>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Statistik per Kota -->
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Statistik per Kota</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Kota</th>
-                                    <th>Jumlah Mahasiswa</th>
-                                    <th>Rata-rata Tinggi</th>
-                                    <th>Hobi Populer</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for stat in statistik_kota %}
-                                <tr>
-                                    <td>{{ stat.kota }}</td>
-                                    <td>{{ stat.jumlah_mahasiswa }}</td>
-                                    <td>{{ stat.rata_tinggi }} cm</td>
-                                    <td>{{ stat.hobi_populer or '-' }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">Rata-rata Tinggi Badan</h6>
+                        <h3 class="mb-0">{{ statistik_tinggi.rata_rata }} cm</h3>
+                        <small class="text-muted">Tertinggi: {{ statistik_tinggi.tertinggi }} cm | Terendah: {{ statistik_tinggi.terendah }} cm</small>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hobi Tanpa Peminat -->
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card">
-                <div class="card-header bg-warning">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-exclamation-triangle"></i> Hobi Tanpa Peminat
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if hobi_tanpa_peminat %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Kode Hobi</th>
-                                    <th>Nama Hobi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for hobi in hobi_tanpa_peminat %}
-                                <tr>
-                                    <td><code>{{ hobi.kodehobi }}</code></td>
-                                    <td>{{ hobi.namahobi }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <hr>
+                    {% if mahasiswa_tertua_termuda %}
+                    <div class="mb-2">
+                        <h6 class="text-muted mb-2">Mahasiswa Tertua</h6>
+                        <p class="mb-1"><strong>{{ mahasiswa_tertua_termuda.tertua[0].nama }}</strong></p>
+                        <small class="text-muted">{{ mahasiswa_tertua_termuda.tertua[0].usia }} tahun</small>
                     </div>
-                    {% else %}
-                    <div class="alert alert-success mb-0">
-                        <i class="fas fa-check-circle"></i> Semua hobi memiliki peminat.
+                    <hr>
+                    <div>
+                        <h6 class="text-muted mb-2">Mahasiswa Termuda</h6>
+                        <p class="mb-1"><strong>{{ mahasiswa_tertua_termuda.termuda[0].nama }}</strong></p>
+                        <small class="text-muted">{{ mahasiswa_tertua_termuda.termuda[0].usia }} tahun</small>
                     </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Grafik Persentase Kota dan Tahun Masuk -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <h5 class="card-title mb-0">Persentase Mahasiswa Berdasarkan Kota Asal</h5>
+    <!-- Distribusi Geografis -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-home"></i> Kota Tinggal Saat Ini</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="chartKota"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div style="height: 300px;">
-                    <canvas id="chartKota"></canvas>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-map-marked-alt"></i> Tempat Lahir</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="chartTempatLahir"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title mb-0">Distribusi Mahasiswa Berdasarkan Tahun Masuk</h5>
-            </div>
-            <div class="card-body">
-                <div style="height: 300px;">
-                    <canvas id="chartTahun"></canvas>
+
+    <!-- Distribusi Bulan Lahir -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-purple text-white" style="background-color: #6f42c1;">
+                    <h5 class="card-title mb-0"><i class="fas fa-birthday-cake"></i> Distribusi Bulan Lahir</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 250px;">
+                        <canvas id="chartBulan"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -206,15 +148,46 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Data untuk grafik hobi (bar chart)
+        // Data untuk grafik hobi (bar chart) - Top 10 saja
+        const allHobiData = [
+            {% for item in statistik_hobi %}
+            {label: '{{ item.namahobi }}', value: {{ item.jumlah_mahasiswa }}},
+            {% endfor %}
+        ];
+        
+        // Ambil top 10 hobi
+        const top10Hobi = allHobiData.slice(0, 10);
+        
         const hobiData = {
-            labels: [{% for item in statistik_hobi %}'{{ item.namahobi }}',{% endfor %}],
+            labels: top10Hobi.map(item => item.label),
             datasets: [{
                 label: 'Jumlah Mahasiswa',
-                data: [{% for item in statistik_hobi %}{{ item.jumlah_mahasiswa }},{% endfor %}],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
+                data: top10Hobi.map(item => item.value),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(199, 199, 199, 0.7)',
+                    'rgba(83, 102, 255, 0.7)',
+                    'rgba(255, 99, 255, 0.7)',
+                    'rgba(99, 255, 132, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(199, 199, 199, 1)',
+                    'rgba(83, 102, 255, 1)',
+                    'rgba(255, 99, 255, 1)',
+                    'rgba(99, 255, 132, 1)'
+                ],
+                borderWidth: 2
             }]
         };
 
@@ -290,11 +263,11 @@
             });
         }
 
-        // Data untuk statistik kota
+        // Data untuk kota tinggal
         const dataKota = {
             labels: [
                 {% for kota in statistik_kota %}
-                    "{{ kota.kota }}"{{ "," if not loop.last }}
+                    "{{ kota.kota|title }}"{{ "," if not loop.last }}
                 {% endfor %}
             ],
             values: [
@@ -303,36 +276,90 @@
                 {% endfor %}
             ],
             colors: [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
-                '#FF9F40', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+                '#17A2B8', '#28A745', '#FFC107', '#DC3545', '#6610F2', 
+                '#FD7E14', '#20C997', '#6C757D', '#E83E8C', '#007BFF'
             ]
         };
 
-        // Data untuk statistik tahun masuk
-        const dataTahun = {
+        // Data untuk tempat lahir
+        const dataTempatLahir = {
             labels: [
-                {% for tahun in statistik_tahun %}
-                    "{{ tahun.tahun }}"{{ "," if not loop.last }}
+                {% if statistik_tempat_lahir %}
+                    {% for tempat in statistik_tempat_lahir %}
+                        "{{ tempat.tempat_lahir }}"{{ "," if not loop.last }}
+                    {% endfor %}
+                {% else %}
+                    'Tidak ada data'
+                {% endif %}
+            ],
+            values: [
+                {% if statistik_tempat_lahir %}
+                    {% for tempat in statistik_tempat_lahir %}
+                        {{ tempat.jumlah_mahasiswa }}{{ "," if not loop.last }}
+                    {% endfor %}
+                {% else %}
+                    0
+                {% endif %}
+            ],
+            colors: [
+                '#28A745', '#17A2B8', '#FFC107', '#DC3545', '#6610F2', 
+                '#FD7E14', '#20C997', '#6C757D', '#E83E8C', '#007BFF'
+            ]
+        };
+
+        // Data untuk bulan lahir
+        const dataBulan = {
+            labels: [
+                {% for bulan in statistik_bulan %}
+                    "{{ bulan.nama_bulan }}"{{ "," if not loop.last }}
                 {% endfor %}
             ],
             values: [
-                {% for tahun in statistik_tahun %}
-                    {{ tahun.jumlah_mahasiswa }}{{ "," if not loop.last }}
+                {% for bulan in statistik_bulan %}
+                    {{ bulan.jumlah_mahasiswa }}{{ "," if not loop.last }}
                 {% endfor %}
             ],
             colors: [
-                '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#36A2EB',
-                '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384'
+                '#3498DB', '#E74C3C', '#F39C12', '#1ABC9C', '#9B59B6', '#34495E',
+                '#16A085', '#27AE60', '#2980B9', '#8E44AD', '#2C3E50', '#D35400'
             ]
         };
 
-        // Debug
-        console.log('Data Kota:', dataKota);
-        console.log('Data Tahun:', dataTahun);
-
         // Membuat pie charts
-        createPieChart('chartKota', dataKota, 'Persentase Mahasiswa per Kota');
-        createPieChart('chartTahun', dataTahun, 'Distribusi per Tahun Masuk');
+        createPieChart('chartKota', dataKota, '');
+        createPieChart('chartTempatLahir', dataTempatLahir, '');
+        
+        // Membuat bar chart untuk bulan lahir
+        new Chart(document.getElementById('chartBulan'), {
+            type: 'bar',
+            data: {
+                labels: dataBulan.labels,
+                datasets: [{
+                    label: 'Jumlah Mahasiswa',
+                    data: dataBulan.values,
+                    backgroundColor: dataBulan.colors,
+                    borderColor: dataBulan.colors.map(c => c.replace('0.7', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
     });
 </script>
 

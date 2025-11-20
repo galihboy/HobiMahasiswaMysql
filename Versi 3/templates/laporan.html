@@ -4,19 +4,71 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-file-alt"></i> Laporan Data Mahasiswa</h2>
+        <div>
+            <button class="btn btn-success" onclick="exportToExcel()">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </button>
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print"></i> Cetak
+            </button>
+        </div>
     </div>
 
+    <!-- Ringkasan Statistik -->
+    {% if mahasiswa_list %}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Total Mahasiswa</h6>
+                    <h3 class="mb-0">{{ mahasiswa_list|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Rata-rata Tinggi</h6>
+                    <h3 class="mb-0">{{ "%.1f"|format(mahasiswa_list|sum(attribute='tinggi_badan')/mahasiswa_list|length) }} cm</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Laki-laki</h6>
+                    <h3 class="mb-0">{{ mahasiswa_list|selectattr('tinggi_badan', 'gt', 165)|list|length }}</h3>
+                    <small>Estimasi (tinggi > 165cm)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Perempuan</h6>
+                    <h3 class="mb-0">{{ mahasiswa_list|selectattr('tinggi_badan', 'le', 165)|list|length }}</h3>
+                    <small>Estimasi (tinggi ≤ 165cm)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filter -->
     <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="fas fa-filter"></i> Filter Data</h5>
+        </div>
         <div class="card-body">
-            <form id="filterForm" method="GET" action="{{ url_for('laporan') }}" class="mb-4" onsubmit="return submitForm(event)">
-                <div class="row">
+            <form id="filterForm" method="GET" action="{{ url_for('laporan') }}" onsubmit="return submitForm(event)">
+                <div class="row g-3">
                     <div class="col-md-3">
-                        <label for="filter-type" class="form-label">Filter Tanggal Masuk Berdasarkan:</label>
+                        <label for="filter-type" class="form-label fw-bold">Filter Berdasarkan:</label>
                         <select class="form-select" id="filter-type" name="filter_type" onchange="filterTypeChange(this)">
                             <option value="">Semua Data</option>
-                            <option value="date" {% if filter_type == 'date' %}selected{% endif %}>Tanggal Spesifik</option>
-                            <option value="month" {% if filter_type == 'month' %}selected{% endif %}>Bulan</option>
-                            <option value="year" {% if filter_type == 'year' %}selected{% endif %}>Tahun</option>
+                            <option value="date" {% if filter_type == 'date' %}selected{% endif %}>Tanggal Masuk Spesifik</option>
+                            <option value="month" {% if filter_type == 'month' %}selected{% endif %}>Bulan Masuk</option>
+                            <option value="year" {% if filter_type == 'year' %}selected{% endif %}>Tahun Masuk</option>
                         </select>
                     </div>
                     <div class="col-md-3" id="date-filter" style="display: {% if filter_type == 'date' %}block{% else %}none{% endif %}">
@@ -49,31 +101,55 @@
                                placeholder="Contoh: 2024" min="2000" max="2100">
                     </div>
                     <div class="col-md-3 align-self-end">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary w-100">
                             <i class="fas fa-filter"></i> Terapkan Filter
                         </button>
-                        {% if filter_type %}
-                            <a href="{{ url_for('laporan') }}" class="btn btn-secondary">
-                                <i class="fas fa-undo"></i> Reset
-                            </a>
-                        {% endif %}
                     </div>
+                    {% if filter_type %}
+                    <div class="col-md-3 align-self-end">
+                        <a href="{{ url_for('laporan') }}" class="btn btn-secondary w-100">
+                            <i class="fas fa-undo"></i> Reset Filter
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
                 <input type="hidden" name="filter_value" id="filter_value" value="{{ filter_value }}">
             </form>
+            
+            {% if filter_type %}
+            <div class="alert alert-info mt-3 mb-0">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Filter Aktif:</strong> 
+                {% if filter_type == 'date' %}
+                    Tanggal Masuk: {{ filter_value }}
+                {% elif filter_type == 'month' %}
+                    Bulan Masuk: {{ ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'][filter_value|int] }}
+                {% elif filter_type == 'year' %}
+                    Tahun Masuk: {{ filter_value }}
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
 
+    <!-- Tabel Data -->
     <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-table"></i> Data Mahasiswa</h5>
+            <span class="badge bg-light text-dark">{{ mahasiswa_list|length }} mahasiswa</span>
+        </div>
         <div class="card-body">
+            {% if mahasiswa_list %}
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover" id="laporanTable">
                     <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>NIM</th>
                             <th>Nama</th>
                             <th>Tempat Lahir</th>
                             <th>Tanggal Lahir</th>
+                            <th>Usia</th>
                             <th>Kota</th>
                             <th>Tanggal Masuk</th>
                             <th>Tinggi Badan</th>
@@ -82,27 +158,59 @@
                     <tbody>
                         {% for mhs in mahasiswa_list %}
                         <tr>
+                            <td>{{ loop.index }}</td>
                             <td>{{ mhs.nim }}</td>
                             <td>{{ mhs.nama }}</td>
                             <td>{{ mhs.tempat_lahir }}</td>
-                            <td>{{ mhs.tanggal_lahir.strftime('%d-%m-%Y') }}</td>
-                            <td>{{ mhs.kota }}</td>
-                            <td>{{ mhs.tanggal_masuk.strftime('%d-%m-%Y') }}</td>
+                            <td>{{ mhs.tanggal_lahir.strftime('%d-%m-%Y') if mhs.tanggal_lahir else '-' }}</td>
+                            <td>
+                                {% if mhs.tanggal_lahir %}
+                                    {{ mhs.usia }} tahun
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-info">{{ mhs.kota|title }}</span></td>
+                            <td>{{ mhs.tanggal_masuk.strftime('%d-%m-%Y') if mhs.tanggal_masuk else '-' }}</td>
                             <td>{{ mhs.tinggi_badan }} cm</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </div>
-        <div class="card-footer text-center">
-            <button class="btn btn-primary" onclick="window.print()">
-                <i class="fas fa-print"></i> Pratinjau Cetak
-            </button>
+            {% else %}
+            <div class="alert alert-warning text-center">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                <h5>Tidak Ada Data</h5>
+                <p>Tidak ada mahasiswa yang sesuai dengan filter yang dipilih.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
+<!-- Print Styles -->
+<style>
+@media print {
+    .btn, .card-header, nav, footer, .alert {
+        display: none !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .table {
+        font-size: 12px;
+    }
+    .badge {
+        border: 1px solid #000;
+        color: #000 !important;
+        background: transparent !important;
+    }
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 function filterTypeChange(selectElement) {
     // Sembunyikan semua filter
@@ -126,10 +234,39 @@ function submitForm(event) {
     if (filterType) {
         const activeFilter = document.querySelector(`#filter-value-${filterType}`);
         filterValue = activeFilter.value;
+        
+        if (!filterValue) {
+            alert('Silakan pilih nilai filter terlebih dahulu!');
+            return false;
+        }
     }
     
     document.getElementById('filter_value').value = filterValue;
     event.target.submit();
+}
+
+function exportToExcel() {
+    const table = document.getElementById('laporanTable');
+    if (!table) {
+        alert('Tidak ada data untuk di-export!');
+        return;
+    }
+    
+    // Buat workbook baru
+    const wb = XLSX.utils.book_new();
+    
+    // Convert table ke worksheet
+    const ws = XLSX.utils.table_to_sheet(table);
+    
+    // Tambahkan worksheet ke workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Laporan Mahasiswa');
+    
+    // Generate filename dengan timestamp
+    const date = new Date();
+    const filename = `Laporan_Mahasiswa_${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2,'0')}${date.getDate().toString().padStart(2,'0')}.xlsx`;
+    
+    // Download file
+    XLSX.writeFile(wb, filename);
 }
 </script>
 {% endblock %}

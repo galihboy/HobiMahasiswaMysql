@@ -431,25 +431,28 @@ def laporan():
         try:
             if filter_type == 'date':
                 query = """
-                    SELECT * FROM mahasiswa 
+                    SELECT *, TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) as usia
+                    FROM mahasiswa 
                     WHERE DATE(tanggal_masuk) = DATE(%s)
-                    ORDER BY nim
+                    ORDER BY CAST(nim AS UNSIGNED)
                 """
                 cursor.execute(query, (filter_value,))
             elif filter_type == 'year':
                 year_value = int(filter_value.strip())  # Konversi ke integer
                 query = """
-                    SELECT * FROM mahasiswa 
+                    SELECT *, TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) as usia
+                    FROM mahasiswa 
                     WHERE YEAR(tanggal_masuk) = %s
-                    ORDER BY nim
+                    ORDER BY CAST(nim AS UNSIGNED)
                 """
                 cursor.execute(query, (year_value,))
             elif filter_type == 'month':
                 month_value = int(filter_value.strip())  # Konversi ke integer
                 query = """
-                    SELECT * FROM mahasiswa 
+                    SELECT *, TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) as usia
+                    FROM mahasiswa 
                     WHERE MONTH(tanggal_masuk) = %s
-                    ORDER BY nim
+                    ORDER BY CAST(nim AS UNSIGNED)
                 """
                 cursor.execute(query, (month_value,))
                 
@@ -460,7 +463,17 @@ def laporan():
         finally:
             cursor.close()
     else:
-        mahasiswa_list = get_mahasiswa_data()
+        # Ambil semua data dengan usia
+        db = buat_koneksi()
+        cursor = db.cursor(dictionary=True)
+        query = """
+            SELECT *, TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) as usia
+            FROM mahasiswa
+            ORDER BY CAST(nim AS UNSIGNED)
+        """
+        cursor.execute(query)
+        mahasiswa_list = cursor.fetchall()
+        cursor.close()
     
     return render_template('laporan.html', 
                          mahasiswa_list=mahasiswa_list,
@@ -475,19 +488,16 @@ def dashboard():
     statistik_hobi = get_statistik_hobi()
     statistik_tinggi = get_statistik_tinggi_badan()
     statistik_kota = get_statistik_kota()
-    hobi_tanpa_peminat = get_hobi_tanpa_peminat()
-    statistik_tahun = get_statistik_tahun_masuk()
+    statistik_tempat_lahir = get_statistik_tempat_lahir()
     statistik_bulan = get_statistik_bulan_lahir()
     mahasiswa_tertua_termuda = get_mahasiswa_tertua_termuda()
     
-   
     return render_template('dashboard.html', 
                          ringkasan=ringkasan,
                          statistik_hobi=statistik_hobi,
                          statistik_tinggi=statistik_tinggi,
                          statistik_kota=statistik_kota,
-                         hobi_tanpa_peminat=hobi_tanpa_peminat,
-                         statistik_tahun=statistik_tahun,
+                         statistik_tempat_lahir=statistik_tempat_lahir,
                          statistik_bulan=statistik_bulan,
                          mahasiswa_tertua_termuda=mahasiswa_tertua_termuda)
 
